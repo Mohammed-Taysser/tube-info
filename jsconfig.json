@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"module": "esnext",
+		"jsx": "react",
+		"checkJs": true,
+		"target": "es2017",
+		"moduleResolution": "Node",
+		"resolveJsonModule": true
+	},
+	"exclude": [
+		"node_modules",
+		"**/node_modules/*",
+		"build"
+	],
+	"typeAcquisition": {
+		"include": [
+			"jest"
+		]
+	}
+}
