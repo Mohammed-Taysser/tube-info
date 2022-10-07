@@ -1,11 +1,59 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import { oraPromise } from 'ora';
 import config from './config.js';
+import { getPlaylistInfo, getPlaylistMetadata } from '../api/playlist.js';
+import { exportInfoAsReport } from './export.js';
 import {
+	getPlaylistId,
+	handleApiError,
 	validateApiKey,
 	validateExportItems,
 	validateFilePath,
 } from './validate.js';
+
+const playlistExportOptions = [
+	{
+		type: 'checkbox',
+		name: 'exportItems',
+		message: 'Which data do you want to export for each video?',
+		choices: [
+			{ name: '1. Position in the playlist', value: 'position' },
+			{ name: '2. Title', value: 'title' },
+			{ name: '3. Uploader', value: 'uploader' },
+			{ name: '4. Uploader URL', value: 'uploaderUrl' },
+			{ name: '5. URL', value: 'url' },
+			{ name: '6. Description', value: 'description' },
+			{ name: '7. Video privacy', value: 'videoPrivacy' },
+			{ name: '8. Publish time (UTC)', value: 'publishTime' },
+			{ name: '9. thumbnail', value: 'thumbnail' },
+		],
+		default: config.getExportOptionDefaults('playlistExportItems'),
+		validate: validateExportItems,
+	},
+];
+
+const exportPathAndExtensionOptions = [
+	{
+		type: 'list',
+		name: 'fileExt',
+		message: 'Which file extension do you prefer?',
+		choices: [
+			{ name: 'JSON', value: 'json' },
+			{ name: 'CSV', value: 'csv' },
+		],
+		default: config.get('fileExt'),
+	},
+	{
+		type: 'input',
+		name: 'folderPath',
+		message: `An ${chalk.underline('absolute')} path of a ${chalk.underline(
+			'folder'
+		)} where the report will be saved:`,
+		default: config.get('folderPath'),
+		validate: validateFilePath,
+	},
+];
 
 // ----------------
 // api key action |
@@ -95,26 +143,7 @@ async function resetConfig() {
 }
 
 async function editPlaylistExportOptions() {
-	const { exportItems } = await inquirer.prompt([
-		{
-			type: 'checkbox',
-			name: 'exportItems',
-			message: 'Which data do you want to export for each video?',
-			choices: [
-				{ name: '1. Position in the playlist', value: 'position' },
-				{ name: '2. Title', value: 'title' },
-				{ name: '3. Uploader', value: 'uploader' },
-				{ name: '4. Uploader URL', value: 'uploaderUrl' },
-				{ name: '5. URL', value: 'url' },
-				{ name: '6. Description', value: 'description' },
-				{ name: '7. Video privacy', value: 'videoPrivacy' },
-				{ name: '8. Publish time (UTC)', value: 'publishTime' },
-				{ name: '9. thumbnail', value: 'thumbnail' },
-			],
-			default: config.getExportOptionDefaults('playlistExportItems'),
-			validate: validateExportItems,
-		},
-	]);
+	const { exportItems } = await inquirer.prompt(playlistExportOptions);
 
 	config.setExportOptionDefaults('playlistExportItems', exportItems);
 }
@@ -150,27 +179,9 @@ async function editVideoExportOptions() {
 }
 
 async function editExportPathAndExtension() {
-	const { fileExt, folderPath } = await inquirer.prompt([
-		{
-			type: 'list',
-			name: 'fileExt',
-			message: 'Which file extension do you prefer?',
-			choices: [
-				{ name: 'JSON', value: 'json' },
-				{ name: 'CSV', value: 'csv' },
-			],
-			default: config.get('fileExt'),
-		},
-		{
-			type: 'input',
-			name: 'folderPath',
-			message: `An ${chalk.underline('absolute')} path of a ${chalk.underline(
-				'folder'
-			)} where the report will be saved:`,
-			default: config.get('folderPath'),
-			validate: validateFilePath,
-		},
-	]);
+	const { fileExt, folderPath } = await inquirer.prompt(
+		exportPathAndExtensionOptions
+	);
 
 	config.set('fileExt', fileExt);
 	config.set('folderPath', folderPath);
@@ -266,4 +277,93 @@ async function configAction(options) {
 	}
 }
 
-export { apiKeyAction, configAction };
+// -----------------
+// playlist action |
+// -----------------
+
+/**
+ * Action handler for `tube-info id [options] <playlistId>`
+ * @param {string} inputValue   Command argument - ID of playlist to be exported
+ */
+async function playlistAction(inputValue, options) {
+	const playlistId = getPlaylistId(inputValue);
+
+	// Check for "Watch Later"
+	if (playlistId === 'WL') {
+		console.log(
+			chalk.yellow(
+				'⚠️ Videos in Watch Later playlist cannot be retrieved through the YouTube API.'
+			)
+		);
+		console.log(chalk.yellow('⚠️ Please try another playlist.'));
+	}
+
+	// Check if API key exists
+	if (!config.get('apiKey')) {
+		console.log(chalk.yellow(`⚠️ You haven't set your YouTube API key!`));
+		console.log(`- Run ${chalk.cyan('tube-info key')} to set the API `);
+		process.exit();
+	}
+
+	// Fetch playlist metadata
+	const metadata = await oraPromise(
+		getPlaylistMetadata(playlistId),
+		'Fetching playlist metadata...'
+	);
+
+	console.log(`- Playlist Title: ${chalk.cyan(metadata.title)}`);
+	console.log(
+		`- Number of videos (including private videos): ${chalk.cyan(
+			metadata.numOfVideos
+		)}\n`
+	);
+
+	// Check if playlist is empty
+	if (metadata.numOfVideos === 0) {
+		console.log(
+			chalk.yellow(
+				'⚠️ This playlist is empty and there are no video data to export.'
+			)
+		);
+	}
+
+	let playlistData = null;
+
+	const saveFileOptions = {
+		fileExt: config.get('fileExt'),
+		folderPath: config.get('folderPath'),
+		title: metadata.title,
+	};
+
+	try {
+		if (options.default) {
+			// Skip all prompts for `--default` option
+			const exportItems = config.getExportOptionDefaults('playlistExportItems');
+
+			playlistData = await oraPromise(
+				getPlaylistInfo(playlistId, exportItems),
+				'Getting playlist info ...'
+			);
+		} else {
+			const { exportItems } = await inquirer.prompt(playlistExportOptions);
+			const { fileExt, folderPath } = await inquirer.prompt(
+				exportPathAndExtensionOptions
+			);
+
+			saveFileOptions.fileExt = fileExt;
+			saveFileOptions.folderPath = folderPath;
+
+			// Fetch playlist data
+			playlistData = await oraPromise(
+				getPlaylistInfo(playlistId, exportItems),
+				'Getting playlist info ...'
+			);
+		}
+	} catch (error) {
+		handleApiError(error);
+	}
+
+	exportInfoAsReport(playlistData, saveFileOptions);
+}
+
+export { apiKeyAction, configAction, playlistAction };
