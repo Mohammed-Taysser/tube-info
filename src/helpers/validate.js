@@ -110,9 +110,98 @@ function handleApiError(error) {
 	}
 }
 
+// get valid playlist url or id
+// constants
+const idRegex = /^[a-zA-Z0-9-_]{34}$/;
+const urlRegex = /^https?:\/\//;
+const validQueryDomains = ['youtube.com', 'www.youtube.com', 'm.youtube.com'];
+
+/**
+ * Returns true if given id satisfies YouTube's playlist id format.
+ *
+ * @param {string} id
+ * @return {boolean}
+ */
+function validatePlaylistId(id = '') {
+	return idRegex.test(id.trim());
+}
+
+/**
+ * Get playlist ID.
+ *
+ * The following url is a type of playlist URL formats.
+ * - https://www.youtube.com/playlist?list=PLDoPjvoNmBAy532K9M_fjiAmrJ0gkCyLJ
+ *
+ * @param {string} url
+ * @return {string}
+ */
+function getURLPlaylistId(url = '') {
+	const parsed = new URL(url.trim());
+
+	let id = parsed.searchParams.get('list');
+
+	if (parsed.hostname && !validQueryDomains.includes(parsed.hostname)) {
+		console.log(chalk.red('✖ Not a YouTube domain'));
+	}
+
+	if (!id) {
+		console.log(chalk.red(`✖ No video id found: "${url}"`));
+	}
+
+	id = id.substring(0, 34);
+
+	if (!validatePlaylistId(id)) {
+		console.log(
+			chalk.red(
+				`✖ Playlist id (${id}) does not match expected format (${idRegex.toString()})`
+			)
+		);
+	}
+
+	return id;
+}
+
+/**
+ * Gets video ID either from a url or by checking if the given string
+ * matches the video ID format.
+ *
+ * If unable to find a id or If videoId doesn't match specs will log an error to console
+ * @param {string} str
+ * @returns {string}
+ */
+
+function getPlaylistId(str = '') {
+	if (validatePlaylistId(str)) {
+		return str;
+	} else if (urlRegex.test(str.trim())) {
+		return getURLPlaylistId(str);
+	} else {
+		console.log(chalk.red(`✖ No playlist id found: ${str}`));
+		process.exit(1);
+	}
+}
+
+/**
+ * Checks wether the input string includes a valid id.
+ *
+ * @param {string} string
+ * @returns {boolean}
+ */
+function isValidatePlaylistURL(string = '') {
+	try {
+		getURLPlaylistId(string);
+		return true;
+	} catch (e) {
+		console.log(chalk.red(`✖ ${e.message}`));
+		return false;
+	}
+}
+
 export {
 	validateApiKey,
 	validateFilePath,
 	validateExportItems,
 	handleApiError,
+	getPlaylistId,
+	isValidatePlaylistURL,
 };
