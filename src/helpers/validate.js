@@ -1,4 +1,5 @@
 import axios from 'axios';
+import isAbsolute from 'is-absolute';
 import config from './config.js';
 import chalk from 'chalk';
 
@@ -13,7 +14,7 @@ async function validateApiKey(apiKey = '') {
 			await axios(`${config.get('apiBaseUrl')}/playlistItems`, {
 				params: {
 					key: apiKey,
-					playlistId: config.get('dummyPlaylistId'),
+					playlistId: 'PLDoPjvoNmBAy532K9M_fjiAmrJ0gkCyLJ',
 					part: 'status',
 					maxResults: 1,
 				},
@@ -24,7 +25,7 @@ async function validateApiKey(apiKey = '') {
 			if (error.response === undefined) {
 				console.log(
 					chalk.red(
-						'✖ Error in network connection. Please check your Internet connection.'
+						'\n✖ Error in network connection. Please check your Internet connection.'
 					)
 				);
 			}
@@ -45,4 +46,19 @@ async function validateApiKey(apiKey = '') {
 	}
 }
 
-export { validateApiKey };
+function validateFilePath(input = '/') {
+	if (isAbsolute(input)) {
+		return true;
+	}
+
+	console.log(chalk.red(`\n✖ Please enter a valid absolute path!`));
+}
+
+function validateExportItems(input = '') {
+	if (input.length === 0) {
+		console.log(chalk.red('\n✖ Select at least 1 item to export'));
+	}
+	return true;
+}
+
+export { validateApiKey, validateFilePath, validateExportItems };
