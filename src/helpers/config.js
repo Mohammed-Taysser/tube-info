@@ -19,26 +19,61 @@ const schema = {
 	playlistExportItems: {
 		type: 'object',
 		properties: {
+			description: { type: 'boolean' },
 			position: { type: 'boolean' },
+			publishTime: { type: 'boolean' },
+			thumbnail: { type: 'boolean' },
 			title: { type: 'boolean' },
 			uploader: { type: 'boolean' },
 			uploaderUrl: { type: 'boolean' },
 			url: { type: 'boolean' },
-			description: { type: 'boolean' },
 			videoPrivacy: { type: 'boolean' },
-			publishTime: { type: 'boolean' },
-			thumbnail: { type: 'boolean' },
 		},
 		default: {
+			description: false,
 			position: true,
+			publishTime: false,
+			thumbnail: true,
 			title: true,
 			uploader: true,
 			uploaderUrl: false,
 			url: true,
-			description: false,
 			videoPrivacy: false,
-			publishTime: false,
+		},
+	},
+	videoExportItems: {
+		type: 'object',
+		properties: {
+			channelId: { type: 'boolean' },
+			channelTitle: { type: 'boolean' },
+			commentCount: { type: 'boolean' },
+			description: { type: 'boolean' },
+			favoriteCount: { type: 'boolean' },
+			length: { type: 'boolean' },
+			likeCount: { type: 'boolean' },
+			privacyStatus: { type: 'boolean' },
+			publishDate: { type: 'boolean' },
+			tags: { type: 'boolean' },
+			thumbnail: { type: 'boolean' },
+			title: { type: 'boolean' },
+			url: { type: 'boolean' },
+			viewCount: { type: 'boolean' },
+		},
+		default: {
+			channelId: false,
+			channelTitle: true,
+			commentCount: false,
+			description: false,
+			favoriteCount: false,
+			length: true,
+			likeCount: true,
+			privacyStatus: false,
+			publishDate: true,
+			tags: false,
 			thumbnail: true,
+			title: true,
+			url: false,
+			viewCount: true,
 		},
 	},
 	fileExt: {
@@ -71,11 +106,21 @@ class Config {
 		}
 	}
 
+	/**
+	 * get the config value by key if exist else throw an error
+	 * @param {String} key
+	 * @returns {any}
+	 */
 	get(key) {
 		this.checkKey(key);
 		return this.conf.get(key);
 	}
 
+	/**
+	 * set config option if exist else throw an error
+	 * @param {String} key
+	 * @param {*} value
+	 */
 	set(key, value) {
 		this.checkKey(key);
 		this.conf.set(key, value);
@@ -83,16 +128,17 @@ class Config {
 
 	/**
 	 * Used in the `default` field of `inquirer` prompt.
-	 * @returns {string[]}  Key names in `exportItems` if that key's value is `true`
+	 * @param {String} key
+	 * @returns {string[]}  Key names get by key if that key's value is `true`
 	 */
-	getPlaylistExportItemsDefaults() {
-		const exportItems = this.conf.get('playlistExportItems');
+	getExportOptionDefaults(key) {
+		const exportItems = this.conf.get(key);
 
 		const result = [];
 
-		Object.keys(exportItems).forEach((key) => {
-			if (exportItems[key]) {
-				result.push(key);
+		Object.keys(exportItems).forEach((item) => {
+			if (exportItems[item]) {
+				result.push(item);
 			}
 		});
 
@@ -101,16 +147,17 @@ class Config {
 
 	/**
 	 * Set which items to export by default.
+	 * @param {String} key
 	 * @param {string[]} items Key names in `exportItems` to be set to `true`
 	 */
-	setPlaylistExportItemsDefaults(items) {
-		const exportItems = this.conf.get('playlistExportItems');
+	setExportOptionDefaults(key, items) {
+		const exportItems = this.conf.get(key);
 
 		Object.keys(exportItems).forEach((item) => {
 			exportItems[item] = items.includes(item);
 		});
 
-		this.conf.set('playlistExportItems', exportItems);
+		this.conf.set(key, exportItems);
 	}
 
 	/**
