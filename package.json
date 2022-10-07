@@ -1,0 +1,70 @@
+{
+	"name": "tube-info",
+	"version": "1.0.0",
+	"main": "src/index.js",
+	"repository": "https://github.com/Mohammed-Taysser/tube-info.git",
+	"author": {
+		"name": "Mohammed Taysser",
+		"email": "mohamedtaysser983@gmai.com",
+		"url": "https://mohammed-taysser.github.io/portfolio/"
+	},
+	"scripts": {
+		"start": "node src/index.js",
+		"test": "jest",
+		"test:coverage": "jest --coverage",
+		"lint": "eslint src/**/*.js",
+		"clean": "rm -rf dist",
+		"build": "babel ./src -d dist -s",
+		"watch": "babel ./src -d dist -s -w"
+	},
+	"type": "module",
+	"license": "MIT",
+	"private": false,
+	"homepage": "https://github.com/Mohammed-Taysser/tube-info",
+	"bugs": {
+		"url": "https://github.com/Mohammed-Taysser/tube-info/issues",
+		"email": "mohamedtaysser983@gmail.com"
+	},
+	"keywords": [
+		"nodejs",
+		"javascript",
+		"cli",
+		"info",
+		"youtube",
+		"terminal",
+		"videos",
+		"csv",
+		"json",
+		"download",
+		"cli",
+		"command line"
+	],
+	"engines": {
+		"npm": ">=8.19.1",
+		"node": ">=16.15.0",
+		"yarn": ">=1.22.19"
+	},
+	"dependencies": {
+		"axios": "^1.0.0",
+		"chalk": "^5.1.0",
+		"commander": "^9.4.1",
+		"conf": "^10.2.0",
+		"inquirer": "^9.1.2",
+		"is-absolute": "^1.0.0",
+		"json2csv": "^5.0.7",
+		"ora": "^6.1.2",
+		"ytdl-core": "^4.11.2"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.19.3",
+		"@babel/core": "^7.19.3",
+		"@babel/node": "^7.19.1",
+		"@babel/plugin-transform-runtime": "^7.19.1",
+		"@babel/polyfill": "^7.12.1",
+		"@babel/preset-env": "^7.19.3",
+		"@babel/runtime": "^7.19.0",
+		"@types/node": "^18.8.2",
+		"eslint": "^8.24.0",
+		"jest": "^29.1.2"
+	}
+}
