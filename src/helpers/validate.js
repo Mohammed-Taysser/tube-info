@@ -61,4 +61,58 @@ function validateExportItems(input = '') {
 	return true;
 }
 
-export { validateApiKey, validateFilePath, validateExportItems };
+/**
+ * Handle error from fetching YouTube API.
+ * @param {Error} error
+ */
+function handleApiError(error) {
+	let status = '',
+		reason = '';
+
+	try {
+		const json = JSON.parse(error.message);
+		status = json.status;
+		reason = json.reason;
+	} catch (error) {
+		console.log(chalk.red('✖ Something went wrong. Please try again!'));
+		process.exit(1);
+	}
+
+	switch (reason) {
+		case 'quotaExceeded':
+			console.log(
+				chalk.red(
+					`✖ (${status}): Your API key has exceeded the daily quota of 10,000 units.`
+				)
+			);
+
+			console.log(
+				chalk.red(
+					'✖ You cannot export more data until tomorrow when the quote usage resets.'
+				)
+			);
+			break;
+		case 'playlistNotFound':
+			console.log(`(${status}): Playlist cannot be found.`);
+			console.log(
+				chalk.red(
+					'✖ This may be because the playlist visibility is set to private.'
+				)
+			);
+			break;
+		default:
+			console.log(
+				chalk.red(
+					`✖ (${status} ${reason}): Something went wrong. Please try again!`
+				)
+			);
+			break;
+	}
+}
+
+export {
+	validateApiKey,
+	validateFilePath,
+	validateExportItems,
+	handleApiError,
+};
