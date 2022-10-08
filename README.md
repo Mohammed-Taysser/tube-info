@@ -27,6 +27,8 @@ This app lets you download the [`metadata of each video`](#exportable-items) (e.
 > Before start [`node.js`](https://nodejs.org/en/) must pre-install in your machine.
 > to verify installation, use `node -v` it show something like that `v16.15.0` see [`node.js`](https://nodejs.org/en/) for more details and how to install.
 
+**note** for Linux and Mac users need to execute the following command with `sudo`
+
 1. Install the app:
 
    ```shell
