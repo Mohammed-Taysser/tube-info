@@ -5,6 +5,7 @@
 
 - `config` : is there a better way to handel app version ?? 💡
 - add tests 📚
+- reduce package size
 
 ## Release
 
