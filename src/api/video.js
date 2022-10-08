@@ -18,7 +18,7 @@ const exportedItemsMap = {
 	privacyStatus: 'status.privacyStatus',
 	publishDate: 'snippet.publishedAt',
 	tags: 'snippet.tags',
-	thumbnail: 'snippet.thumbnail.standard.url',
+	thumbnail: 'snippet.thumbnails.standard.url',
 	title: 'snippet.title',
 	url: 'id',
 	viewCount: 'statistics.viewCount',
