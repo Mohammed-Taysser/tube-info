@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../helpers/config.js';
+import { getNestedValue } from '../helpers/api.js';
 import { handleApiError } from '../helpers/validate.js';
 
 /**
@@ -17,24 +18,6 @@ const exportedItemsMap = {
 	publishTime: 'snippet.publishedAt',
 	thumbnail: 'snippet.thumbnails.standard.url',
 };
-
-/**
- * Gets the key of an object.
- * @param {Object} object
- * @param {String} keyPath
- * @returns {any|null} `null` if the path refers to non-existing property
- * @example
- * const obj = { foo: { bar: 10 } };
- * const result = getNestedValue(obj, "foo.bar"); // 10
- */
-function getNestedValue(object = {}, keyPath = null) {
-	return keyPath.split('.').reduce((prev, curr) => {
-		if (prev) {
-			return prev[curr] ?? null;
-		}
-		return null;
-	}, object);
-}
 
 function refactorPlaylistItems(items, exportItems) {
 	const playlistData = [];
