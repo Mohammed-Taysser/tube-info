@@ -6,11 +6,13 @@ import { getPlaylistInfo, getPlaylistMetadata } from '../api/playlist.js';
 import { exportInfoAsReport } from './export.js';
 import {
 	getPlaylistId,
+	getVideoID,
 	handleApiError,
 	validateApiKey,
 	validateExportItems,
 	validateFilePath,
 } from './validate.js';
+import { getVideoInfo, getVideoMetadata } from '../api/video.js';
 
 const playlistExportOptions = [
 	{
@@ -29,6 +31,32 @@ const playlistExportOptions = [
 			{ name: '9. thumbnail', value: 'thumbnail' },
 		],
 		default: config.getExportOptionDefaults('playlistExportItems'),
+		validate: validateExportItems,
+	},
+];
+
+const videoExportOptions = [
+	{
+		type: 'checkbox',
+		name: 'exportItems',
+		message: 'Which data do you want to export for each video?',
+		choices: [
+			{ name: '1. Channel id', value: 'channelId' },
+			{ name: '2. Channel title', value: 'channelTitle' },
+			{ name: '3. Comment count', value: 'commentCount' },
+			{ name: '4. Description', value: 'description' },
+			{ name: '5. Favorite count', value: 'favoriteCount' },
+			{ name: '6. Length', value: 'length' },
+			{ name: '7. Likes', value: 'likeCount' },
+			{ name: '8. Privacy status', value: 'privacyStatus' },
+			{ name: '9. Publish date', value: 'publishDate' },
+			{ name: '10. Tags', value: 'tags' },
+			{ name: '11. Thumbnail', value: 'thumbnail' },
+			{ name: '12. Title', value: 'title' },
+			{ name: '13. Url', value: 'url' },
+			{ name: '14. View count', value: 'viewCount' },
+		],
+		default: config.getExportOptionDefaults('videoExportItems'),
 		validate: validateExportItems,
 	},
 ];
@@ -366,4 +394,65 @@ async function playlistAction(inputValue, options) {
 	exportInfoAsReport(playlistData, saveFileOptions);
 }
 
-export { apiKeyAction, configAction, playlistAction };
+// --------------
+// video action |
+// --------------
+
+async function videoAction(inputValue, options) {
+	const videoId = getVideoID(inputValue);
+
+	// Check if API key exists
+	if (!config.get('apiKey')) {
+		console.log(chalk.yellow(`⚠️ You haven't set your YouTube API key!`));
+		console.log(`- Run ${chalk.cyan('tube-info key')} to set the API `);
+		process.exit();
+	}
+
+	const metaData = await oraPromise(
+		getVideoMetadata(videoId),
+		'Fetching video metadata...'
+	);
+
+	console.log(`- Video Title: ${chalk.cyan(metaData.title)}`);
+	console.log(`- Channel title: ${chalk.cyan(metaData.channelTitle)}\n`);
+
+	const saveFileOptions = {
+		fileExt: config.get('fileExt'),
+		folderPath: config.get('folderPath'),
+		title: metaData.title,
+	};
+
+	let videoInfo = null;
+
+	try {
+		if (options.default) {
+			// Skip all prompts for `--default` option
+			const exportItems = config.getExportOptionDefaults('videoExportItems');
+
+			videoInfo = await oraPromise(
+				getVideoInfo(videoId, exportItems),
+				'Getting video info ...'
+			);
+		} else {
+			const { exportItems } = await inquirer.prompt(videoExportOptions);
+			const { fileExt, folderPath } = await inquirer.prompt(
+				exportPathAndExtensionOptions
+			);
+
+			saveFileOptions.fileExt = fileExt;
+			saveFileOptions.folderPath = folderPath;
+
+			// Fetch video data
+			videoInfo = await oraPromise(
+				getVideoInfo(videoId, exportItems),
+				'Getting video info ...'
+			);
+		}
+	} catch (error) {
+		handleApiError(error);
+	}
+
+	exportInfoAsReport(videoInfo, saveFileOptions);
+}
+
+export { apiKeyAction, configAction, playlistAction, videoAction };
