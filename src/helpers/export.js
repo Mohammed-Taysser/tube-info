@@ -44,7 +44,7 @@ function getExportedFileName(fileName, fileExt) {
 
 /**
  * Save playlist data into a file.
- * @param {object[]} info
+ * @param {object} info
  * @param {{ fileExt: "csv"|"json", folderPath: string, title: string }} options
  * @return {Void} Whether the operation is successful.
  */
