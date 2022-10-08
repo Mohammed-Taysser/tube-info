@@ -17,6 +17,9 @@
 		"build": "babel ./src -d dist -s",
 		"watch": "babel ./src -d dist -s -w"
 	},
+	"bin": {
+		"tube-info": "./src/index.js"
+	},
 	"type": "module",
 	"license": "MIT",
 	"private": false,
