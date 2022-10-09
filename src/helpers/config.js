@@ -1,11 +1,12 @@
 import Conf from 'conf';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 
 const schema = {
 	version: {
 		type: 'string',
-		default: '1.0.0',
+		default: JSON.parse(fs.readFileSync('package.json', 'utf8')).version,
 	},
 	apiKey: {
 		type: 'string',
