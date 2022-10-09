@@ -3,11 +3,14 @@
 
 ## Todo
 
-- `config` : is there a better way to handel app version ?? 💡
 - add tests 📚
-- reduce package size
 
 ## Release
+
+### 9 Oct 2022
+
+- Reduce package size & files number
+- `config` : find a better way to handel app version
 
 ### 8 Oct 2022
 
