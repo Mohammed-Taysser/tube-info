@@ -4,6 +4,8 @@ Node.js command line app for exporting video/playlist data from a YouTube to a J
 
 This app lets you download the [`metadata of each video`](#exportable-items) (e.g. video title, URL, uploader, and etc.) from a public/unlisted YouTube playlist and saves it to a JSON or CSV file.
 
+![Demo of usage](./assets/images/demo-usage.gif)
+
 ## Features
 
 - Highly customizable
@@ -92,7 +94,7 @@ To find the video ID, go to the video homepage and copy the value of the `list` 
 
 For example, the [`Learn Typescript In Arabic 2022 - #01 - Introduction And What Is TypeScript`](https://www.youtube.com/watch?v=yUndnE-2osg) video has a video ID of `yUndnE-2osg`.
 
-![Demo of video "id" command](./assets/demo-video-id.png)
+![Demo of video "id" command](./assets/images/demo-video-id.png)
 
 #### Flags
 
@@ -129,7 +131,7 @@ To find the playlist ID, go to the playlist homepage and copy the value of the `
 
 For example, the [`Learn Typescript 2022`](https://www.youtube.com/playlist?list=PLDoPjvoNmBAy532K9M_fjiAmrJ0gkCyLJ) playlist has a playlist ID of `PLDoPjvoNmBAy532K9M_fjiAmrJ0gkCyLJ`.
 
-![Demo of "id" command](./assets/demo-playlist-id.png)
+![Demo of "id" command](./assets/images/demo-playlist-id.png)
 
 #### Flags
 
@@ -532,11 +534,11 @@ tube-info key
 
 First-time users for registering YouTube API key:
 
-![Demo of "key" command for first-time users](./assets/demo-key-first-use.png)
+![Demo of "key" command for first-time users](./assets/images/demo-key-first-use.png)
 
 After registering the API key:
 
-![Demo of "key" command after registered API key](./assets/demo-key--after-register.png)
+![Demo of "key" command after registered API key](./assets/images/demo-key-after-register.png)
 
 > ✔️ Your API key will only be stored in your local computer.
 
@@ -548,7 +550,7 @@ Configure preferences of this app.
 tube-info config
 ```
 
-![Demo of "config" command](./assets/demo-config.png)
+![Demo of "config" command](./assets/images/demo-config.png)
 
 #### Flags 🚩
 
