@@ -2,8 +2,13 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { oraPromise } from 'ora';
 import config from './config.js';
-import { getPlaylistInfo, getPlaylistMetadata } from '../api/playlist.js';
 import { exportInfoAsReport } from './export.js';
+import {
+	getPlaylistInfo,
+	getPlaylistMetadata,
+	getVideoInfo,
+	getVideoMetadata,
+} from './api.js';
 import {
 	getPlaylistId,
 	getVideoID,
@@ -12,7 +17,6 @@ import {
 	validateExportItems,
 	validateFilePath,
 } from './validate.js';
-import { getVideoInfo, getVideoMetadata } from '../api/video.js';
 
 const playlistExportOptions = [
 	{
